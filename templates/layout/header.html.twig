@@ -1,0 +1,126 @@
+ <!-- En-tête -->
+    <header class="header container">
+      <!-- Logo de Booki -->
+      <a href="{{ path('app_index') }}">
+      <picture class="header__logo">
+        <source media="(min-width: 768px)" srcset="/assets/images/logo/Booki.png">
+        <img src="/assets/images/logo/Booki_x3.png" alt="Booki">
+      </picture>
+      </a>
+
+         <!-- Navigation -->
+      <nav class="header__nav">
+        <ul class="header__nav__list">
+          <li class="header__nav__list-item">
+            <a href="#hebergements">Hébergements</a>
+          </li>
+          <li class="header__nav__list-item">
+            <a href="#activites">Activités</a>
+          </li>
+          <li class="header__nav__list-item">
+            <a href="{{ path('register')}}">Inscription</a>
+          </li>
+          <li class="header__nav__list-item">
+            <a href="{{ path('app_login') }}">Connexion</a>
+          </li>
+          <li class="header__nav__list-item">
+            <a href="{{ path('app_logout') }}">Deconnexion</a>
+          </li>
+           <li class="header__nav__list-item">
+            <a href="{{ path('client_backoffice') }}">Mes réservations</a>
+          </li>
+        </ul>
+      </nav>
+    </header>
+
+    <!-- Contenu principal -->
+    <main class="content container">
+      <!-- Section de recherche -->
+      <section>
+        <header>
+          <h1 class="h1">Trouvez votre hébergement pour des vacances de rêve</h1>
+        </header>
+
+        <p class="mt-1">En plein centre ville ou en pleine nature</p>
+
+        <!-- formulaire de recherche -->
+        <form action="index.html" method="GET" role="search">
+          <div class="search-input">
+            <!-- label -->
+            <label for="search" class="search-input__icon">
+              <i class="fas fa-map-marker-alt"></i>
+            </label>
+            <!-- zone de texte -->
+            <div class="search-input__text">
+              <input type="search" id="search" name="search" placeholder="Paris, France">
+            </div>
+            <!-- bouton d'envoi -->
+            {% if city is defined %}
+            <a href="{{ path('index_city', {'cityName': city.name}) }}">
+              <button type="submit" class="search-input__button" aria-label="Rechercher">
+              <span class="search-input__button__text">Rechercher</span>
+              <i class="fas fa-search search-input__button__icon"></i>
+               </button>
+              </a>
+              {% else %}
+                   <button type="submit" class="search-input__button" aria-label="Rechercher">
+                    <span class="search-input__button__text">Rechercher</span>
+                    <i class="fas fa-search search-input__button__icon"></i>
+                  </button>
+              {% endif %}          
+          </div>
+        </form>
+
+        <!-- Filtres -->
+        <article id="filters">
+          <div class="filters">
+            <header>
+              <h2 class="filters__title">Filtres</h2>
+            </header>
+
+            <ul class="filters__list">
+              <!-- Économique -->
+              <li>
+                <a href="{{ path('index_category', {'categoryName' : "economique"}) }}" class="filters__list__item" title="Économique">
+                  <span class="filters__list__item__icon">
+                    <i class="fas fa-money-bill-wave"></i>
+                  </span>
+                  <span class="filters__list__item__text">Économique</span>
+                </a>
+              </li>
+              <!-- Familial -->
+              <li>
+                <a href="{{ path('index_category', {'categoryName' : "familial"}) }}"  class="filters__list__item" title="Familial">
+                  <span class="filters__list__item__icon">
+                    <i class="fas fa-child"></i>
+                  </span>
+                  <span class="filters__list__item__text">Familial</span>
+                </a>
+              </li>
+              <!-- Romantique -->
+              <li>
+                <a href="{{ path('index_category', {'categoryName' : "romantique"}) }}" class="filters__list__item" title="Romantique">
+                  <span class="filters__list__item__icon">
+                    <i class="fas fa-heart"></i>
+                  </span>
+                  <span class="filters__list__item__text">Romantique</span>
+                </a>
+              </li>
+              <!-- Animaux autorisés -->
+              <li>
+                <a href="{{ path('index_category', {'categoryName' : "animauxok"}) }}" class="filters__list__item" title="Animaux autorisés">
+                  <span class="filters__list__item__icon">
+                    <i class="fas fa-dog"></i>
+                  </span>
+                  <span class="filters__list__item__text">Animaux autorisés</span>
+                </a>
+              </li>
+            </ul>
+          </div>
+
+          <div class="hint">
+            <i class="fas fa-info"></i>
+            <p>Plus de 500 logements sont disponibles dans cette ville</p>
+          </div>
+        </article>
+      </section>
