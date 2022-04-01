@@ -1,0 +1,64 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ parent() }} - Fiche produit{% endblock %}
+
+{% block body %}
+
+  <div style="padding-top: 50px; padding-bottom: 200px"class="container-fluid">
+    {% if hebergements is defined %}
+      {% for hebergement in hebergements %}
+        <h1 class="fs-1"> FICHE ETABLISSEMENT: {{hebergement.name }} </h1>
+        <div> 
+          <p> {{ hebergement.name }}</p>
+          </br>
+          <p> Description : {{ hebergement.description}}</p>
+          </br>
+          <p> Catégorie : {{ hebergement.category.name }}</p> <!-- il s'agit ici de l'objet category-->
+          </br>
+          <p> Code postale : {{ hebergement.postcode }}</p>
+          </br>
+          <p> Prix: {{ hebergement.price }}</p>
+
+           <a href="{{ path('hebergement_display', {'hebergementId' : hebergement.id}) }}" style="background-color: blue, color:white, float:right" role="button">Plus d'informations
+          </a>
+        </div>
+        {% endfor %}
+
+    {% elseif hebergement is defined %}
+       <h1 class="fs-1"> FICHE ETABLISSEMENT: {{hebergement.name }} </h1>
+        <div> 
+          <p> {{ hebergement.name }}</p>
+          </br>
+          <p> Description : {{ hebergement.description}}</p>
+          </br>
+          <p> Catégorie : {{ hebergement.category.name }}</p> <!-- il s'agit ici de l'objet category-->
+          </br>
+          <p> Code postale : {{ hebergement.postcode }}</p>
+          </br>
+          <p> Prix: {{ hebergement.price }}</p>
+
+           <a href="{{ path('reservation_form')}}"  style="background-color: blue, color:white, float:right" role="button">Reserver
+          </a>
+        </div>
+      {% else %}
+      {% for activity in activities %}
+        <h1 class="fs-1"> FICHE ACTIVITE: {{activity.name }} </h1>
+        <div> 
+          <p> {{ activity.name }}</p>
+          </br>
+          <p> Description : {{ activity.description}}</p>
+          </br>
+          <p> Code postale : {{ activity.postcode }}</p>
+          <button type="button" class="btn btn-primary float-end">Réserver</button>
+          
+        </div>
+       {% endfor %}
+      {% endif %}
+
+     
+      
+    </div>
+  
+  </div>
+
+    {% endblock %}
