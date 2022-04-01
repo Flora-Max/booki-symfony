@@ -1,0 +1,68 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Hello AdminController!{% endblock %}
+
+{% block body %}
+
+<div>
+    <h1>BACKOFFICE ADMINISTRATEUR</h1>
+    <br>
+    <h2>Liste des hébergements</h2>
+    <a href="{{ path('create_hebergement') }}">Importer un nouvel établissement</a>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th scope="col">Nom:</th>
+                <th scope="col">Ville:</th>
+                <th scope="col">Catégorie:</th>
+                <th scope="col">Prix de la nuit:</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for hebergement in hebergements %}
+            <tr>
+                <td>{{ hebergement.name }}</td>
+                <td>{{ hebergement.city.name }}</td>
+                <td>{{ hebergement.category.name }}</td>
+                <td>{{ hebergement.price }}</td>
+                <td>{{ hebergement.id }}</td>
+                <td> <a href="{{ path('update_hebergement', {'hebergementId' : hebergement.id}) }}"> <button class="btn btn-success" type="button">Modifier</button> </a></td>  
+                <td> <a href="{{ path('delete_hebergement', {'hebergementId' : hebergement.id}) }}"><button class="btn btn-warning" type="button">Supprimer</button> </a></td> 
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+</div>
+
+<div>
+    <br>
+    <h2>Liste des activitées</h2>
+     <a href="{{ path('create_activity') }}">Importer une nouvelle activité</a>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th scope="col">Nom:</th>
+                <th scope="col">Ville:</th>
+                <th scope="col">Code postal:</th> 
+            </tr>
+        </thead>
+        <tbody>
+        {% for activity in activities %}
+            <tr>
+                <td>{{ activity.name }}</td>
+                <td>{{ activity.city.name }}</td>
+                <td>{{ activity.postCode }}</td>
+                
+                <td><a href="{{ path('update_activity', {'activityId' : activity.id}) }}"><button class="btn btn-success" type="button">Modifier</button></a></td>  
+                <td><a href="{{ path('delete_activity', {'activityId' : activity.id}) }}"><button class="btn btn-warning" type="button">Supprimer</button></a></td> 
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+</div>
+
+{% endblock %}

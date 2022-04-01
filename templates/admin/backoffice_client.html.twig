@@ -1,0 +1,39 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Hello AdminController!{% endblock %}
+
+{% block body %}
+
+<div>
+    <h1>BACKOFFICE CLIENT</h1>
+    <br>
+    <h2>Liste des réservations</h2>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th scope="col">Nom de l'établissement:</th>
+                <th scope="col">Nombre de personne:</th>
+                <th scope="col">Nombre de nuit:</th>
+                <th scope="col">Date de la première nuit:</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for reservation in reservations %}
+            <tr>
+                <td>{{ reservation.hebergement.name }}</td>
+                <td>{{ reservation.quantityPeople }}</td>
+                <td>{{ reservation.quantityNight }}</td>
+                <td>{{ reservation.firstNightDate|date('d/m/Y', 'Europe/Paris')}}</td>
+                
+                
+                <td><a href=" {{ path('update_reservation', {'reservationId': reservation.id}) }}"><button class="btn btn-success" type="button">Modifier</button></a></td>  
+                <td><a href="{{ path('delete_reservation', {'reservationId': reservation.id}) }}"><button class="btn btn-warning" type="button">Supprimer</button></a></td> 
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+</div>
+
+{% endblock %}
