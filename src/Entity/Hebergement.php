@@ -6,6 +6,7 @@ use App\Repository\HebergementRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * @ORM\Entity(repositoryClass=HebergementRepository::class)
@@ -16,11 +17,13 @@ class Hebergement
      * @ORM\Id
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
+     * @Groups("hebergement:read")
      */
     private $id;
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Groups("hebergement:read")
      */
     private $name;
 
@@ -32,21 +35,11 @@ class Hebergement
 
     /**
      * @ORM\Column(type="integer")
+     * @Groups("hebergement:read")
      */
     private $price;
 
-    /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\Category", inversedBy="hebergements")
-     * @ORM\JoinColumn(nullable=true)
-     */
-    private $category;
 
-
-    /**
-    * @ORM\ManyToOne(targetEntity="App\Entity\City", inversedBy="hebergements")
-    * @ORM\JoinColumn(nullable=true)
-    */
-    private $city;
 
     /**
      * @ORM\Column(type="integer")
@@ -59,6 +52,42 @@ class Hebergement
      * @ORM\JoinColumn(nullable=true)
      */
     private $reservations;
+
+    /**
+     * @ORM\Column(type="string", length=255)
+     * @Groups("hebergement:read")
+     */
+    private $city;
+
+    /**
+     * @ORM\Column(type="boolean", nullable=true)
+     * @Groups("hebergement:read")
+     */
+    private $trend;
+
+    /**
+     * @ORM\Column(type="text", nullable=true)
+     * @Groups("hebergement:read")
+     */
+    private $imageLarge;
+
+    /**
+     * @ORM\Column(type="text", nullable=true)
+     * @Groups("hebergement:read")
+     */
+    private $imageMedium;
+
+    /**
+     * @ORM\Column(type="text", nullable=true)
+     * @Groups("hebergement:read")
+     */
+    private $imageSmall;
+
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     * @Groups("hebergement:read")
+     */
+    private $category;
 
     public function __construct()
     {
@@ -109,32 +138,6 @@ class Hebergement
         return $this;
     }
 
-    
-
-    public function setCategory(?Category $category): self
-    {
-        $this->category = $category;
-
-        return $this;
-    }
-
-    public function getCity(): ?City
-    {
-        return $this->city;
-    }
-
-    public function setCity(?City $city): self
-    {
-        $this->city = $city;
-
-        return $this;
-    }
-
-    public function getCategory(): ?Category
-    {
-        return $this->category;
-    }
-
     public function getPostcode(): ?int
     {
         return $this->postcode;
@@ -177,5 +180,75 @@ class Hebergement
         return $this;
     }
 
-   
+    public function getCity(): ?string
+    {
+        return $this->city;
+    }
+
+    public function setCity(string $city): self
+    {
+        $this->city = $city;
+
+        return $this;
+    }
+
+    public function getTrend(): ?bool
+    {
+        return $this->trend;
+    }
+
+    public function setTrend(?bool $trend): self
+    {
+        $this->trend = $trend;
+
+        return $this;
+    }
+
+    public function getImageLarge()
+    {
+        return $this->imageLarge;
+    }
+
+    public function setImageLarge($imageLarge): self
+    {
+        $this->imageLarge = $imageLarge;
+
+        return $this;
+    }
+
+    public function getImageMedium()
+    {
+        return $this->imageMedium;
+    }
+
+    public function setImageMedium($imageMedium): self
+    {
+        $this->imageMedium = $imageMedium;
+
+        return $this;
+    }
+
+    public function getImageSmall()
+    {
+        return $this->imageSmall;
+    }
+
+    public function setImageSmall($imageSmall): self
+    {
+        $this->imageSmall = $imageSmall;
+
+        return $this;
+    }
+
+    public function getCategory(): ?string
+    {
+        return $this->category;
+    }
+
+    public function setCategory(?string $category): self
+    {
+        $this->category = $category;
+
+        return $this;
+    } 
 }

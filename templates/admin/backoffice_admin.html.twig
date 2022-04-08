@@ -23,8 +23,8 @@
         {% for hebergement in hebergements %}
             <tr>
                 <td>{{ hebergement.name }}</td>
-                <td>{{ hebergement.city.name }}</td>
-                <td>{{ hebergement.category.name }}</td>
+                <td>{{ hebergement.city }}</td>
+                <td>{{ hebergement.category }}</td>
                 <td>{{ hebergement.price }}</td>
                 <td>{{ hebergement.id }}</td>
                 <td> <a href="{{ path('update_hebergement', {'hebergementId' : hebergement.id}) }}"> <button class="btn btn-success" type="button">Modifier</button> </a></td>  
@@ -53,7 +53,7 @@
         {% for activity in activities %}
             <tr>
                 <td>{{ activity.name }}</td>
-                <td>{{ activity.city.name }}</td>
+                <td>{{ activity.city }}</td>
                 <td>{{ activity.postCode }}</td>
                 
                 <td><a href="{{ path('update_activity', {'activityId' : activity.id}) }}"><button class="btn btn-success" type="button">Modifier</button></a></td>  

@@ -2,10 +2,11 @@
 
 namespace App\Entity;
 
-use App\Repository\ActivityRepository;
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use App\Repository\ActivityRepository;
+use Doctrine\Common\Collections\Collection;
+use Doctrine\Common\Collections\ArrayCollection;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * @ORM\Entity(repositoryClass=ActivityRepository::class)
@@ -16,11 +17,13 @@ class Activity
      * @ORM\Id
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
+     * @Groups("activity:read")
      */
     private $id;
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Groups("activity:read")
      */
     private $name;
 
@@ -29,17 +32,17 @@ class Activity
      */
     private $description;
 
-
-    /**
-    * @ORM\ManyToOne(targetEntity="App\Entity\City", inversedBy="activities")
-    * @ORM\JoinColumn(nullable=true)
-    */
-    private $city;
-
     /**
      * @ORM\Column(type="integer")
+     * @Groups("activity:read")
      */
     private $postcode;
+
+    /**
+     * @ORM\Column(type="string", length=255)
+     * @Groups("activity:read")
+     */
+    private $city;
 
 
     public function getId(): ?int
@@ -85,15 +88,16 @@ class Activity
         return $this;
     }
 
-    public function getCity(): ?City
+    public function getCity(): ?string
     {
         return $this->city;
     }
 
-    public function setCity(?City $city): self
+    public function setCity(string $city): self
     {
         $this->city = $city;
 
         return $this;
     }
+    
 }

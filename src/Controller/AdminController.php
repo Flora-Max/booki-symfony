@@ -76,8 +76,6 @@ class AdminController extends AbstractController
         //on récupère l'entity manager et le repository concerné
         $entityManager = $managerRegistry->getManager();
         $hebergementRepository = $entityManager->getRepository(Hebergement::class);
-        $cityRepository = $entityManager->getRepository(City::class);
-        $cities = $cityRepository->findAll();
         $hebergement = $hebergementRepository->find($hebergementId);
         //si notre hebergement n'est pas trouvé on retourne à l'index admin
         if(!$hebergement){
@@ -97,7 +95,6 @@ class AdminController extends AbstractController
         return $this->render('index/dataForm.html.twig', [
             'formName' => 'Modification de la fiche établissement',
             'dataForm' => $hebergementForm->createView(),
-            'cities' => $cities
         ]);
     }
 
@@ -161,8 +158,6 @@ class AdminController extends AbstractController
         //cette méthode nous permet de modifier les valeurs d'une entity Acivity qui a été persisté en BDD, selon son ID renseigné en BDD
         //on récupère l'entity manager et le repository concerné
         $entityManager = $managerRegistry->getManager();
-        $cityRepository = $entityManager->getRepository(City::class);
-        $cities = $cityRepository->findAll();
         $activityRepository = $entityManager->getRepository(Activity::class);
         $activity = $activityRepository->find($activityId);
         //si notre hebergement n'est pas trouvé on retourne à l'index admin
@@ -183,8 +178,6 @@ class AdminController extends AbstractController
         return $this->render('index/dataForm.html.twig', [
             'formName' => 'Modification de la fiche établissement',
             'dataForm' => $activityForm->createView(),
-            'cities' => $cities
-
         ]);
     }
 
@@ -207,9 +200,5 @@ class AdminController extends AbstractController
         $entityManager->flush(); // on applique la requête
         //on revient à l'index
         return $this->redirectToRoute("app_admin");
-    }
-
-
-   
-
+    } 
 }

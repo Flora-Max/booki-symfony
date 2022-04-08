@@ -13,27 +13,62 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Validator\Constraints\Date;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\Serializer\Encoder\JsonEncoder;
 use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\IntegerType;
+use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
 
 class IndexController extends AbstractController
 {
     /**
-     * @Route("/", name="app_index")
+     * @Route("/", name="app_index", methods= {"GET"})
      */
-    public function index(): Response
+    public function index(ManagerRegistry $managerRegistry): JsonResponse
     {
-        //cette méthode retourne notre page d'acceuil
-        return $this->render('index/index.html.twig');
+        //cette méthode retourne notre page d'acceuil / partie hebergement
+        //return $this->render('index/index.html.twig');
+        $entityManager = $managerRegistry->getManager();
+        $hebergementRepository = $entityManager->getRepository(Hebergement::class);
+        $hebergements = $hebergementRepository->findAll();
+        $response = $this->json($hebergements, 200, [], ['groups' => 'hebergement:read', 'city:read']);
+        return $response; 
+    }
+
+    /**
+     * @Route("/activity", name="app_indexActivity", methods= {"GET"})
+     */
+    public function indexActivity(ManagerRegistry $managerRegistry): Response
+    {
+        //cette méthode retourne la partie activités sur la page d'acceuil
+        $entityManager = $managerRegistry->getManager();
+        $activityRepository = $entityManager->getRepository(Activity::class);
+        $activities = $activityRepository->findAll();
+        $response = $this->json($activities, 200, [], ['groups' => 'activity:read']);
+        return $response; 
+    }
+
+    /**
+     * @Route("/category", name="app_index/category", methods= {"GET"})
+     */
+    /*public function indexCategory(ManagerRegistry $managerRegistry): JsonResponse
+    {
+        //cette méthode retourne notre page d'acceuil / partie hebergement
+        //return $this->render('index/index.html.twig');
+        $entityManager = $managerRegistry->getManager();
+        $categoryRepository = $entityManager->getRepository(Category::class);
+        $categories = $categoryRepository->findAll();
+        $response = $this->json($categories, 200, [], ['groups' => 'category:read', 'city:read']);
+        return $response; 
     }
 
     /**
      * @Route("/display/{hebergementId}", name="hebergement_display")
      */
-    public function display(ManagerRegistry $managerRegistry, Request $request, int $hebergementId):Response
+    /*public function display(ManagerRegistry $managerRegistry, Request $request, int $hebergementId):Response
     {
         //cette méthode retourne une fiche d'etablissement en fonction de son id passé ds l'url
         //Pour communiquer avec notre BDD et la table Hebergement, nous avons besoin de l'Entity Manager et du reposotiry
@@ -59,9 +94,6 @@ class IndexController extends AbstractController
 
         }
         
-    
-
-
     /**
      * @Route("/hebergementBy/{postCode}", name="hebergement_postcode")
      */
@@ -111,9 +143,6 @@ class IndexController extends AbstractController
         //on récupère l'entity Manager et le Repository pertinent 
         $entityManager = $managerRegistry->getManager();
         $activityRepository = $entityManager->getRepository(Activity::class);
-        //on récupère la liste de nos villes
-        $cityRepository = $entityManager->getRepository(City::class);
-        $cities = $cityRepository->findAll();
 
         //On récupère les hebergements par postCode
         $activities = $activityRepository->findBy(
@@ -131,7 +160,6 @@ class IndexController extends AbstractController
         //nous envoyons la liste des Hebergements liés au code postal à notre page d'index Twig
         return $this->render('index/hebergement_display.html.twig', [
             'postCode' => $postCode,
-            'cities' => $cities,
             'activity' => $activity,
             'activities' => $activities
         ]);
@@ -143,7 +171,7 @@ class IndexController extends AbstractController
     /**
     * @Route("/category/{categoryName}", name="index_category")
     */
-    public function displayByCategory(string $categoryName, ManagerRegistry $managerRegistry): Response
+    /*public function displayByCategory(string $categoryName, ManagerRegistry $managerRegistry): Response
     {
         //cette page affiche la liste des hebergements correspondant à la catégorie mentionnée ds l'URL
         //nous récupérons l'entity manager et le Repository concerné
@@ -178,7 +206,7 @@ class IndexController extends AbstractController
     /**
     * @Route("/displayBy/{cityName}", name="index_city")
     */
-    public function displayByCity(string $cityName, ManagerRegistry $managerRegistry): Response
+    /*public function displayByCity(string $cityName, ManagerRegistry $managerRegistry): Response
     {
         //cette page affiche la liste des hebergements correspondant à la ville mentionnée ds l'URL
         //nous récupérons l'entity manager et le Repository concerné
@@ -234,11 +262,4 @@ class IndexController extends AbstractController
         ]);
 
     }
-
-   
-
-
-
-
-
 }

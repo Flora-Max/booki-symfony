@@ -8,6 +8,7 @@ use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\IntegerType;
@@ -27,16 +28,22 @@ class ActivityType extends AbstractType
             ->add('postcode', IntegerType::class, [
                 'label' => 'Code postal:'
             ])
-            ->add('city', EntityType::class, [
-                'label' => 'Ville',
-                'class' => City::class,
-                'choice_label' => 'name',
-                'multiple' => false,
-                'expanded' => false
+            ->add('city', TextType::class, [
+                'label' => 'Ville: ',
+            ])
+            ->add('image_large', FileType::class, [
+                'label' => "Photos L"
+            ])
+            ->add('image_medium', FileType::class, [
+                'label' => "Photos M"
+            ])
+            ->add('image_small', FileType::class, [
+                'label' => "Photos S"
             ])
             ->add('submit', SubmitType::class, [
                 'label' => 'Générer'
             ])
+            
         ;
     }
 
