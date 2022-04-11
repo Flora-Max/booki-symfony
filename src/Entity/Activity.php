@@ -44,6 +44,24 @@ class Activity
      */
     private $city;
 
+    /**
+     * @ORM\Column(type="text", nullable=true)
+     * @Groups("activity:read")
+     */
+    private $imageLarge;
+
+    /**
+     * @ORM\Column(type="text", nullable=true)
+     * @Groups("activity:read")
+     */
+    private $imageMedium;
+
+    /**
+     * @ORM\Column(type="text", nullable=true)
+     * @Groups("activity:read")
+     */
+    private $imageSmall;
+
 
     public function getId(): ?int
     {
@@ -96,6 +114,42 @@ class Activity
     public function setCity(string $city): self
     {
         $this->city = $city;
+
+        return $this;
+    }
+
+    public function getImageLarge(): ?string
+    {
+        return $this->imageLarge;
+    }
+
+    public function setImageLarge(?string $imageLarge): self
+    {
+        $this->imageLarge = $imageLarge;
+
+        return $this;
+    }
+
+    public function getImageMedium(): ?string
+    {
+        return $this->imageMedium;
+    }
+
+    public function setImageMedium(?string $imageMedium): self
+    {
+        $this->imageMedium = $imageMedium;
+
+        return $this;
+    }
+
+    public function getImageSmall(): ?string
+    {
+        return $this->imageSmall;
+    }
+
+    public function setImageSmall(?string $imageSmall): self
+    {
+        $this->imageSmall = $imageSmall;
 
         return $this;
     }
