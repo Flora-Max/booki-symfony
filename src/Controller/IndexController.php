@@ -51,6 +51,24 @@ class IndexController extends AbstractController
         return $response; 
     }
 
+     /**
+     * @Route("/symfony", name="app_indexSymfony", methods= {"GET"})
+     */
+    public function indexSymfony(ManagerRegistry $managerRegistry): Response
+    {
+        //cette méthode retourne notre page d'acceuil 
+        $entityManager = $managerRegistry->getManager();
+        $hebergementRepository = $entityManager->getRepository(Hebergement::class);
+        $hebergements = $hebergementRepository->findAll();
+        $activityRepository = $entityManager->getRepository(Activity::class);
+        $activities = $activityRepository->findAll();
+        return $this->render('index/index.html.twig', [
+            'activities' => $activities,
+            'hebergements' => $hebergements
+        ]);
+        
+    }
+
     /**
      * @Route("/category", name="app_index/category", methods= {"GET"})
      */
@@ -63,35 +81,32 @@ class IndexController extends AbstractController
         $categories = $categoryRepository->findAll();
         $response = $this->json($categories, 200, [], ['groups' => 'category:read', 'city:read']);
         return $response; 
-    }
+    }*/
 
     /**
      * @Route("/display/{hebergementId}", name="hebergement_display")
      */
-    /*public function display(ManagerRegistry $managerRegistry, Request $request, int $hebergementId):Response
+    public function display(ManagerRegistry $managerRegistry, int $hebergementId):Response
     {
         //cette méthode retourne une fiche d'etablissement en fonction de son id passé ds l'url
         //Pour communiquer avec notre BDD et la table Hebergement, nous avons besoin de l'Entity Manager et du reposotiry
         $entityManager = $managerRegistry->getManager();
         $hebergementRepository = $entityManager->getRepository(Hebergement::class);
-        $reservationRepository = $entityManager->getRepository(Reservation::class);
-        $reservation= $reservationRepository->findAll();
-        //on récupère les Catégories à afficher
-        $categoryRepository = $entityManager->getRepository(Category::class);
-        $categories = $categoryRepository->findAll();
+        //$reservationRepository = $entityManager->getRepository(Reservation::class);
+        //$reservation= $reservationRepository->findAll();
         //on utilise la méthode find() de Repository afin de pouvoir retrouver le Product qui nous interesse
         $hebergement = $hebergementRepository->find($hebergementId);
         //si l'hébergement n'est pas trouvé, on retourne à la page d'accueil
         if(!$hebergement){
-            return $this->redirectToRoute("app_index");
+            return $this->redirectToRoute("app_indexSymfony");
         }
-     
         //Une fois que nous avons trouvé notre hébergement, on l'affiche
-        return $this->render('index/hebergement_display.html.twig', [
+        /*return $this->render('index/hebergement_display.html.twig', [
             'hebergement' => $hebergement,
-            'categories' => $categories,
-        ]);
-
+            'reservation' => $reservation
+        ]);*/
+        $response = $this->json($hebergement, 200, [], ['groups' => 'hebergement:read']);
+        return $response; 
         }
         
     /**
@@ -105,10 +120,7 @@ class IndexController extends AbstractController
         $hebergementRepository = $entityManager->getRepository(Hebergement::class);
         $activityRepository = $entityManager->getRepository(Activity::class);
         $activities = $activityRepository->findAll();
-        //on récupère la liste de nos villes
-        $cityRepository = $entityManager->getRepository(City::class);
-        $cities = $cityRepository->findAll();
-
+   
         //On récupère les hebergements par postCode
         $hebergements = $hebergementRepository->findBy(
             ["postcode" => $postCode]
@@ -120,11 +132,10 @@ class IndexController extends AbstractController
        
         //Si la recherche n'aboutie pas on retourne à la page d'acceuil
         if(!$hebergements){
-            return $this->redirectToRoute('app_index');
+            return $this->redirectToRoute('app_indexSymfony');
         }
         //nous envoyons la liste des Hebergements liés au code postal à notre page d'index Twig
         return $this->render('index/hebergement_display.html.twig', [
-            'cities' => $cities,
             'hebergements' => $hebergements,
             'postCode' => $postCode,
             'activities' => $activities,
@@ -155,7 +166,7 @@ class IndexController extends AbstractController
        
         //Si la recherche n'aboutie pas on retourne à la page d'acceuil
         if(!$activity){
-            return $this->redirectToRoute('app_index');
+            return $this->redirectToRoute('app_indexSymfony');
         }
         //nous envoyons la liste des Hebergements liés au code postal à notre page d'index Twig
         return $this->render('index/hebergement_display.html.twig', [
@@ -199,7 +210,7 @@ class IndexController extends AbstractController
             'hebergement' => $hebergement,
             'category' => $category
         ]);
-    } 
+    } */
 
 
 
@@ -228,7 +239,7 @@ class IndexController extends AbstractController
             'name' => $cityName,
             'city' => $city,
         ]);
-    } 
+    } */
     
 
     /**
@@ -251,15 +262,12 @@ class IndexController extends AbstractController
                 $entityManager->flush();
                }
                 else {
-                return $this->redirectToRoute('app_index');
+                return $this->redirectToRoute('app_indexSymfony');
+                }      
             }
-               
-           }
-   
-        return $this->render('index/dataForm.html.twig', [
+        /*return $this->render('index/dataForm.html.twig', [
            'dataForm' => $reservationForm->createView(),
            'formName' => "Reservation"
-        ]);
-
+        ]);*/
     }
 }
