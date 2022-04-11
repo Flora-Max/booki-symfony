@@ -22,22 +22,40 @@ class ReservationType extends AbstractType
                 'class' => Hebergement::class,
                 'choice_label' => 'name',
                 'multiple' => false,
-                'expanded' => false
+                'expanded' => false,
+                'attr' => [
+                    'class' => "form-control"
+                ]
             ])
             ->add('quantityNight', IntegerType::class, [
-                'label' => 'Nombre de nuits:'
+                'label' => 'Nombre de nuits:',
+                'attr' => [
+                    'class' => "form-control"
+                ]
             ])
             ->add('quantityPeople', IntegerType::class, [
-                'label' => 'Nombre de personne:'
+                'label' => 'Nombre de personne:',
+                'attr' => [
+                    'class' => "form-control"
+                ]
             ])
             ->add('creationDate', DateType::class, [
-                'label' => ' Date de création de votre réservation: '
+                'label' => ' Date de création de votre réservation: ',
+                'attr' => [
+                    'class' => "form-control"
+                ]
             ])
             ->add('firstNightDate', DateType::class, [
-                'label' => 'Début de votre séjour: '
+                'label' => 'Début de votre séjour: ',
+                'attr' => [
+                    'class' => "form-control"
+                ]
             ])
             ->add('submit', SubmitType::class, [
-                'label' => 'Valider: '
+                'label' => 'Valider: ',
+                'attr' => [
+                    'class' => "btn-primary"
+                ]
             ]);
         ;
     }

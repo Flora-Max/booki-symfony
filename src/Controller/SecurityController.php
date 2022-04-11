@@ -54,16 +54,24 @@ class SecurityController extends AbstractController
         //nous créons notre formulaire
         $userForm = $this->createFormBuilder()
             ->add('username', TextType::class,[
-                'label' => "Nom de l\'utilisateur",
-                
+                'label' => "Nom de l'utilisateur",
+                'attr' => [
+                    'class' => 'form-control'
+                ]  
             ])
             ->add('password', RepeatedType::class, [ //2 types pour la répétition/confirmation du mdp
                 'type' => PasswordType::class,
                 'first_options' => [
                     'label' => 'Mot de passe',
+                    'attr' => [
+                        'class' => 'form-control'
+                    ]
                 ],
                 'second_options' => [
                     'label' => 'Confirmation du mot de passe',
+                    'attr' => [
+                        'class' => 'form-control'
+                    ]
                 ]
             ])
             ->add('role', ChoiceType::class, [
@@ -74,9 +82,15 @@ class SecurityController extends AbstractController
                 ],
                 'expanded' => true,
                 'multiple' => false,
+                'attr' => [
+                    'class' => 'form-control'
+                ]
             ])
             ->add('submit', SubmitType::class, [
                 'label' => 'Valider',
+                'attr' => [
+                    'class' => 'btn btn-primary'
+                ]
             ])
             ->getForm();
             //nous traitons les données reçues au sein de notre formulaire
@@ -92,7 +106,7 @@ class SecurityController extends AbstractController
                 $entityManager->persist($user);
                 $entityManager->flush();
                 //après la création de l'utilisateur, nous retournons à l'index
-                return $this->redirectToRoute('app_index');
+                return $this->redirectToRoute('app_indexSymfony');
             }
             //si notre formulaire n'est pas validé, nous le présentons à l'utilisateur
             return $this->render('index/dataform.html.twig', [

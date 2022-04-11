@@ -20,18 +20,30 @@ class ActivityType extends AbstractType
     {
         $builder
             ->add('name', TextType::class, [
-                'label' => "Nom de l'activité:"
+                'label' => "Nom de l'activité:",
+                'attr' => [
+                    'class' => "form-control"
+                ]
             ])
             ->add('description', TextareaType::class, [
-                'label' => "Description de l'activité:"
+                'label' => "Description de l'activité:",
+                'attr' => [
+                    'class' => "form-control"
+                ]
             ])
             ->add('postcode', IntegerType::class, [
-                'label' => 'Code postal:'
+                'label' => 'Code postal:',
+                'attr' => [
+                    'class' => "form-control"
+                ]
             ])
             ->add('city', TextType::class, [
                 'label' => 'Ville: ',
+                'attr' => [
+                    'class' => "form-control"
+                ]
             ])
-            ->add('image_large', FileType::class, [
+            /*->add('image_large', FileType::class, [
                 'label' => "Photos L"
             ])
             ->add('image_medium', FileType::class, [
@@ -39,9 +51,12 @@ class ActivityType extends AbstractType
             ])
             ->add('image_small', FileType::class, [
                 'label' => "Photos S"
-            ])
+            ])*/
             ->add('submit', SubmitType::class, [
-                'label' => 'Générer'
+                'label' => 'Générer',
+                'attr' => [
+                    'class' => "btn-primary"
+                ]
             ])
             
         ;
