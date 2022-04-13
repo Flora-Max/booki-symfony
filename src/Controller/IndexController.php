@@ -8,6 +8,7 @@ use App\Entity\Category;
 use App\Entity\Hebergement;
 use App\Entity\Reservation;
 use App\Form\ReservationType;
+use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -15,12 +16,15 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Validator\Constraints\Date;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Serializer\Encoder\JsonEncoder;
+use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\IntegerType;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-
+use Symfony\Component\Serializer\Normalizer\AbstractObjectNormalizer;
+use Symfony\Component\Serializer\Exception\NotEncodableValueException;
 
 class IndexController extends AbstractController
 {
@@ -243,13 +247,13 @@ class IndexController extends AbstractController
     
 
     /**
-     * @Route("/reservationForm", name="reservation_form")
+     * @Route("/reservationForm/{hebergementId}", name="reservation_form")
      */
-    public function reservationForm(ManagerRegistry $managerRegistry, Request $request):Response
+    public function reservationForm(EntityManagerInterface $em, Request $request, SerializerInterface $serializer, ValidatorInterface $validator, int $hebergementId)
     {
         //cette méthode nous permet de renvoyer notre utilisateur vers un formulaire de réservation au click sur le bouton réserver de l'établissement souhaité et de créer une nouvelle instance de notre classe Reservation qu'on envoie en BDD
         //on récupère l'entity pertinent
-        $entityManager = $managerRegistry->getManager();
+       /* $entityManager = $managerRegistry->getManager();
         //on instancie un nouvel objet Reservation vide
         $reservation = new Reservation;
         //nous créons le formulaire que nous lions à notre obj Reservation
@@ -261,13 +265,45 @@ class IndexController extends AbstractController
                 $entityManager->persist($reservation);
                 $entityManager->flush();
                }
-                else {
-                return $this->redirectToRoute('app_indexSymfony');
-                }      
-            }
-        /*return $this->render('index/dataForm.html.twig', [
+                //else {
+                //return $this->redirectToRoute('app_indexSymfony');
+            }   
+
+        return $this->render('index/dataForm.html.twig', [
            'dataForm' => $reservationForm->createView(),
-           'formName' => "Reservation"
-        ]);*/
+           'formName' => "Reservation"*/
+       
+        /*header('Access-Control-Allow-Origin: *');*/
+  
+       //je récupère le corps de la requête
+       $jsonRecu = $request->getContent();
+
+       try {
+           //je désérialise
+           /**
+            * @var Reservation
+            */
+           $reservation = $serializer->deserialize($jsonRecu, Reservation::class, 'json');
+           $reservation->setHebergement($em->getReference(Hebergement::class, $hebergementId));
+
+           //verif du validator
+           //$errors = $validator->validate($reservation);
+
+           //si compte d'erreurs sup à 0 : 
+           /*if(count($errors) >0){
+               return $this->json($errors, 400);
+           }*/
+
+           //si pas d'erreurs, je persiste
+           $em->persist($reservation);
+           $em->flush();
+
+           return $this->json($reservation, 201, [], ['groups' => 'reservation:read']);
+        } catch (NotEncodableValueException $e) {
+           return $this->json([
+               'status' => 400,
+               'message' => $e->getMessage()
+           ], 400);
+       }
     }
 }

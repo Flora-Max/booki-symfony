@@ -6,6 +6,8 @@ use App\Repository\ReservationRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * @ORM\Entity(repositoryClass=ReservationRepository::class)
@@ -16,33 +18,46 @@ class Reservation
      * @ORM\Id
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
+     * @Assert\NotBlank
+     * @Groups("reservation:read")
      */
     private $id;
 
     /**
      * @ORM\Column(type="integer")
+     * @Assert\NotBlank
+     * @Assert\Positive
+     * @Groups("reservation:read")
      */
     private $quantityNight;
 
     /**
      * @ORM\Column(type="integer")
+     * @Assert\NotBlank
+     * @Assert\Positive
+     * @Groups("reservation:read")
      */
     private $quantityPeople;
 
     /**
-     * @ORM\Column(type="date")
+     * @ORM\Column(type="datetime")
+     * @Assert\NotBlank
+     * @Groups("reservation:read")
      */
     private $creationDate;
 
     /**
      * @ORM\Column(type="date")
+     * @Assert\NotBlank
+     * @Groups("reservation:read")
      */
     private $firstNightDate;
 
   
      /**
      * @ORM\ManyToOne(targetEntity="App\Entity\Hebergement", inversedBy="reservations")
-     * @ORM\JoinColumn(nullable=true)
+     * @ORM\JoinColumn(name="hebergement_id", referencedColumnName="id",nullable=true)
+     * @Groups("reservation:read")
      */
     private $hebergement;
 
@@ -52,6 +67,10 @@ class Reservation
      */
     private $user;
 
+    public function __construct()
+    {
+        $this->creationDate = new \DateTime("now"); // on génère un objet DateTime configuré à l'instant de la génération de notre instance d'entity
+    }
    
 
     public function getId(): ?int

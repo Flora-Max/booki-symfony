@@ -18,17 +18,21 @@ class Hebergement
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
      * @Groups("hebergement:read")
+     * @Groups("reservation:read")
      */
     private $id;
 
     /**
      * @ORM\Column(type="string", length=255)
      * @Groups("hebergement:read")
+     * @Groups("reservation:read")
      */
     private $name;
 
     /**
      * @ORM\Column(type="text")
+     * @Groups("hebergement:read")
+     * @Groups("reservation:read")
      */
     private $description;
 
