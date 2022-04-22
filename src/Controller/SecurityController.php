@@ -3,18 +3,22 @@
 namespace App\Controller;
 
 use App\Entity\User;
+use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\PasswordType;
 use Symfony\Component\Form\Extension\Core\Type\RepeatedType;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Serializer\Exception\NotEncodableValueException;
 use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
+use Symfony\Component\Serializer\Serializer;
 
 class SecurityController extends AbstractController
 {
@@ -47,72 +51,44 @@ class SecurityController extends AbstractController
     /**
      * @Route("/register", name="register")
      */
-    public function registerAdmin(Request $request, ManagerRegistry $managerRegistry, UserPasswordHasherInterface $passHasher):Response
+    public function registerAdmin(Request $request, ManagerRegistry $managerRegistry, UserPasswordHasherInterface $passHasher, EntityManagerInterface $em, SerializerInterface $serializer)
     {
-        //cette méthode nous permet de créer une nouvelle entity User via l'usage d'un formulaire interne à notre méthode, et avec les privilèges désirés
-        $entityManager = $managerRegistry->getManager();
-        //nous créons notre formulaire
-        $userForm = $this->createFormBuilder()
-            ->add('username', TextType::class,[
-                'label' => "Nom de l'utilisateur",
-                'attr' => [
-                    'class' => 'form-control'
-                ]  
-            ])
-            ->add('password', RepeatedType::class, [ //2 types pour la répétition/confirmation du mdp
-                'type' => PasswordType::class,
-                'first_options' => [
-                    'label' => 'Mot de passe',
-                    'attr' => [
-                        'class' => 'form-control'
-                    ]
-                ],
-                'second_options' => [
-                    'label' => 'Confirmation du mot de passe',
-                    'attr' => [
-                        'class' => 'form-control'
-                    ]
-                ]
-            ])
-            ->add('role', ChoiceType::class, [
-                'label' => 'Privilèges',
-                'choices' => [
-                    'role: Client' => 'ROLE USER',
-                    'Role: Admin' => 'ROLE ADMIN'
-                ],
-                'expanded' => true,
-                'multiple' => false,
-                'attr' => [
-                    'class' => 'form-control'
-                ]
-            ])
-            ->add('submit', SubmitType::class, [
-                'label' => 'Valider',
-                'attr' => [
-                    'class' => 'btn btn-primary'
-                ]
-            ])
-            ->getForm();
-            //nous traitons les données reçues au sein de notre formulaire
-            $userForm->handleRequest($request);
-            if($request->isMethod('post') && $userForm->isValid()){
-                //on récupère les informations de notre formulaire
-                $data= $userForm->getData();
-                //on créé notre entité User selon les informations enregistréss
-                $user = new User;
-                $user->setRoles(['ROLE_USER', $data['role']]);
-                $user->setUsername($data['username']);
-                $user->setPassword($passHasher->hashPassword($user, $data['password']));
-                $entityManager->persist($user);
-                $entityManager->flush();
-                //après la création de l'utilisateur, nous retournons à l'index
-                return $this->redirectToRoute('app_indexSymfony');
-            }
-            //si notre formulaire n'est pas validé, nous le présentons à l'utilisateur
-            return $this->render('index/dataform.html.twig', [
-                'formName' => "Inscription Utilisateur",
-                'dataForm' => $userForm->createView(),
-            ]);
-            
+            //je récupère le corps de la requête
+            $jsonRecu = $request->getContent();
+            try{
+                //je désérialise
+                $user = $serializer->deserialize($jsonRecu, User::class, 'json');
+
+                //je sécurise le password avec une fonction de hashage 
+                $passwordRecu = $user->getPassword();
+                $hashedPassword = $passHasher->hashPassword(
+                    $user,
+                    $passwordRecu
+                );
+                $user->setPassword($hashedPassword);
+                //si pas d'erreurs, je persiste
+                $em->persist($user);
+                $em->flush();
+                return $this->json($user, 201, [], ['groups' => 'user:read']);
+
+            } catch (NotEncodableValueException $e) {
+            return $this->json([
+            'status' => 400,
+            'message' => $e->getMessage()
+            ], 400);
+        
+    }
+}
+/**
+ * @Route("/user", name="user")
+ */
+public function user(ManagerRegistry $managerRegistry)
+{
+    $entityManager = $managerRegistry->getManager();
+    $userRepository = $entityManager->getRepository(User::class);
+    $user = $userRepository->findAll();
+
+    $response = $this->json($user, 200, [], ['groups' => 'user:read']);
+        return $response; 
     }
 }

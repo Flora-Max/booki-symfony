@@ -9,11 +9,20 @@ use App\Entity\Hebergement;
 use App\Entity\Reservation;
 use App\Form\HebergementType;
 use App\Form\ReservationType;
+use Doctrine\ORM\EntityManager;
+use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\Serializer\SerializerInterface;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
+use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
+use Symfony\Component\Serializer\Exception\NotEncodableValueException;
+use Symfony\Component\Serializer\Serializer;
 
 /**
  * @Route("/admin")
@@ -23,7 +32,7 @@ class AdminController extends AbstractController
     /**
      * @Route("/display", name="app_admin")
      */
-    public function index(ManagerRegistry $managerRegistry): Response
+    /*public function index(ManagerRegistry $managerRegistry): Response
     {
         //cette méthode nous renvoie vers une page nous présentant la liste de tous les hébergements et activtées enregistrés dans notre BDD à des fins de consultations, modifications ou suppression
         //On récupère l'entity et les repository pertinent
@@ -38,86 +47,78 @@ class AdminController extends AbstractController
             'hebergements' => $hebergements,
             'activities' => $activities,
         ]);
-    }
+    }*/
 
     /**
      * @Route("/create/hebergement", name="create_hebergement")
      */
-    public function createHebergement(ManagerRegistry $managerRegistry, Request $request):Response
+    public function createHebergement(ManagerRegistry $managerRegistry, Request $request, EntityManagerInterface $em, SerializerInterface $serializer)
     {
-        //cette méthode nous permet de créer une nouvelle fiche d'établissement à rentrer en BDD et à présenter à nos utilisateurs
-        //on récupère l'entity et les repository pertinent
-        $entityManager = $managerRegistry->getManager();
-        //on instancie un nouvel objet Hebergement vide
-        $hebergement = new Hebergement;
-        //nous créons le formulaire que nous lions à notre objet Hebergement
-        $hebergementForm = $this->createForm(HebergementType::class, $hebergement);
-        //on transmet le contenu du formulaire validé à notre Hebergement
-        $hebergementForm->handleRequest($request);
-        //si notre hébergement est validé, on l'envoie en BDD
-        if($request->isMethod('post') && $hebergementForm->isValid()){
-            $entityManager->persist($hebergement);
-            $entityManager->flush();
-        }
+        //cette méthode nous permet de créer un nouvel hébergement et le pousser en bdd
+        //je récupère le coprs de la requ$ete
+        $jsonRecu = $request->getContent();
+        //Je désérialise, et je persiste en BDD le nouvel hébergement
+        try {
+        $hebergement = $serializer->deserialize($jsonRecu, Hebergement::class, 'json');
+        $em->persist($hebergement);
+        $em->flush();
 
-        //on transmet la nouvelle fiche établissement à notre template Twig
-        return $this->render('index/dataForm.html.twig', [
-            'formName' => "Ajout d'un établissement",
-            'dataForm' => $hebergementForm -> createView(),
-        ]);
+        return $this->json($hebergement, 201, [], ['groups' => 'hebergement:write']);
+        //cath d'erreurs
+        } catch (NotEncodableValueException $e) {
+        return $this->json([
+        'status' => 400,
+        'message' => $e->getMessage()  ], 400);
+    }
     }
 
     /**
     * @Route("/update/hebergement/{hebergementId}", name="update_hebergement")
+    * @ParamConverter("hebergement")
     */
-    public function updateHebergement(ManagerRegistry $managerRegistry, Request $request, int $hebergementId): Response 
+    public function updateHebergement(ManagerRegistry $managerRegistry, Request $request, int $hebergementId, ValidatorInterface $validator, SerializerInterface $serializer, EntityManagerInterface $em):Response
     {
-        //cette méthode nous permet de modifier les valeurs d'une entity Hebergement qui a été persisté en BDD, selon son ID renseigné en BDD
-        //on récupère l'entity manager et le repository concerné
-        $entityManager = $managerRegistry->getManager();
-        $hebergementRepository = $entityManager->getRepository(Hebergement::class);
-        $hebergement = $hebergementRepository->find($hebergementId);
-        //si notre hebergement n'est pas trouvé on retourne à l'index admin
-        if(!$hebergement){
-            return $this->redirectToRoute('app_admin');
-        }
-        //on créé le formulaire que nous lions à notre objet Hebergement
-        $hebergementForm = $this->createForm(HebergementType::class, $hebergement);
-        //on transmet le contenu de notre hebergement modifié si présent
-        $hebergementForm->handleRequest($request);
-        if($request->isMethod('post') && $hebergementForm->isValid()){
-            $entityManager->persist($hebergement);
-            $entityManager->flush();
 
-            return $this->redirectToRoute('app_admin');
-        }
-        //si le formulaire n'est pas rempli, on le présente à l'admin
-        return $this->render('index/dataForm.html.twig', [
-            'formName' => 'Modification de la fiche établissement',
-            'dataForm' => $hebergementForm->createView(),
-        ]);
-    }
+        //cette méthode nous permet de mettre à jour un hébergement de notre bdd
+        //Je récupère le corps de la requête
+        $jsonRecu = $request->getContent();
+        //Je récupère l'hébergement en fonction de son id
+        $hebergementRepository = $em->getRepository(Hebergement::class);
+        $hebergementToUpdate = $hebergementRepository->find($hebergementId);
+    
+        //$form = $this->createForm(HebergementType::class, $hebergementToUpdate);
+        //je sédérialise
+        $hebergementUpdated = $serializer->deserialize($jsonRecu, Hebergement::class, 'json', [AbstractNormalizer::OBJECT_TO_POPULATE => $hebergementToUpdate]);
+            
+        try{
+            $em->persist($hebergementUpdated);
+            $em->flush();
+            return $this->json($hebergementUpdated, 201, [], ['groups' => 'hebergement:write']);
+        } catch (NotEncodableValueException $e) {
+            return $this->json([
+            'status' => 400,
+            'message' => $e->getMessage()], 400);
+        }}
 
-
-     /**
+    /**
      * @Route("/hebergement/delete/{hebergementId}", name="delete_hebergement")
      */
-    public function deleteHebergement(int $hebergementId, ManagerRegistry $managerRegistry, Request $request):Response
+    public function deleteHebergement(int $hebergementId, ManagerRegistry $managerRegistry,EntityManagerInterface $em)
     {
-        //cette méthode nous permet de supprimer une fiche d'établissement de la vue et de la bdd 
-        $entityManager = $managerRegistry->getManager();
-        $hebergementRepository = $entityManager->getRepository(Hebergement::class);
-        //ns recherchons le bulletin qui nous interesse
+        //cette méthode nous permet de supprimer un hebergement de notre bdd
+        $em = $managerRegistry->getManager();
+        $hebergementRepository = $em->getRepository(Hebergement::class);
         $hebergement = $hebergementRepository->find($hebergementId);
-        //si l'hebergement n'est pas trouvé, retour à l'index admin
-        if(!$hebergement){
-            return $this->redirectToRoute("app_admin");
+        try {
+            $em->remove($hebergement);
+            $em->flush();
+            return $this->json($hebergement, 201, [], ['groups' => 'hebergement:read']);
         }
-        //si le bulletin possède une valeur, ns sommes en possession de l'entity à supp. ns passons dc une requête à l'entity manager
-        $entityManager->remove($hebergement);
-        $entityManager->flush(); // on applique la requête
-        //on revient à l'index
-        return $this->redirectToRoute("app_admin");
+        catch (NotEncodableValueException $e) {
+            return $this->json([
+        'status' => 400,
+        'message' => $e->getMessage()], 400);
+        }
     }
 
 
@@ -125,80 +126,74 @@ class AdminController extends AbstractController
     /**
     * @Route("/create/activity", name="create_activity")
     */
-    public function createActivity(ManagerRegistry $managerRegistry, Request $request):Response
+    public function createActivity(ManagerRegistry $managerRegistry, Request $request, SerializerInterface $serializer, EntityManagerInterface $em):Response
     {
-        //cette méthode nous permet de créer une nouvelle fiche d'établissement à rentrer en BDD et à présenter à nos utilisateurs
-        //on récupère l'entity et les repository pertinent
-        $entityManager = $managerRegistry->getManager();
-        //on instancie un nouvel objet Acivity vide
-        $activity = new Activity;
-        //nous créons le formulaire que nous lions à notre objet Hebergement
-        $activityForm = $this->createForm(ActivityType::class, $activity);
-        //on transmet le contenu du formulaire validé à notre Hebergement
-        $activityForm->handleRequest($request);
-        //si notre activité est validé, on l'envoie en BDD
-        if($request->isMethod('post') && $activityForm->isValid()){
-            $entityManager->persist($activity);
-            $entityManager->flush();
-        }
+        //cette méthode nous permet de créer une nouvelle activitée et le pousser en bdd
+        //je récupère le coprs de la requ$ete
+        $jsonRecu = $request->getContent();
+        //Je désérialise, et je persiste en BDD le nouvel hébergement
+        try {
+        $activity = $serializer->deserialize($jsonRecu, Activity::class, 'json');
+        $em->persist($activity);
+        $em->flush();
 
-        //on transmet la nouvelle fiche établissement à notre template Twig
-        return $this->render('index/dataForm.html.twig', [
-            'formName' => "Ajout d'une activité",
-            'dataForm' => $activityForm -> createView(),
-        ]);
+        return $this->json($activity, 201, [], ['groups' => 'hebergement:write']);
+        //cath d'erreurs
+        } catch (NotEncodableValueException $e) {
+        return $this->json([
+        'status' => 400,
+        'message' => $e->getMessage()  ], 400);
+        }
     }
 
     
     /**
     * @Route("/update/activity/{activityId}", name="update_activity")
+    * @ParamConverter("activity")
     */
-    public function updateActivity(ManagerRegistry $managerRegistry, Request $request, int $activityId): Response 
+    public function updateActivity(Request $request, int $activityId, EntityManagerInterface $em, SerializerInterface $serializer): Response 
     {
-        //cette méthode nous permet de modifier les valeurs d'une entity Acivity qui a été persisté en BDD, selon son ID renseigné en BDD
-        //on récupère l'entity manager et le repository concerné
-        $entityManager = $managerRegistry->getManager();
-        $activityRepository = $entityManager->getRepository(Activity::class);
-        $activity = $activityRepository->find($activityId);
-        //si notre hebergement n'est pas trouvé on retourne à l'index admin
-        if(!$activity){
-            return $this->redirectToRoute('app_admin');
+        //cette méthode nous permet de mettre à jour une activitée de notre bdd
+        //Je récupère le corps de la requête
+        $jsonRecu = $request->getContent();
+        //Je récupère l'activité en fonction de son id
+        $activityRepository = $em->getRepository(Activity::class);
+        $activityToUpdate = $activityRepository->find($activityId);
+    
+        //$form = $this->createForm(HebergementType::class, $hebergementToUpdate);
+        //je sédérialise
+        $activityUpdated = $serializer->deserialize($jsonRecu, Activity::class, 'json', [AbstractNormalizer::OBJECT_TO_POPULATE => $activityToUpdate]);
+            
+        try{
+            $em->persist($activityUpdated);
+            $em->flush();
+            return $this->json($activityUpdated, 201, [], ['groups' => 'activity:write']);
+        } catch (NotEncodableValueException $e) {
+            return $this->json([
+            'status' => 400,
+            'message' => $e->getMessage()], 400);
         }
-        //on créé le formulaire que nous lions à notre objet Hebergement
-        $activityForm = $this->createForm(ActivityType::class, $activity);
-        //on transmet le contenu de notre hebergement modifié si présent
-        $activityForm->handleRequest($request);
-        if($request->isMethod('post') && $activityForm->isValid()){
-            $entityManager->persist($activity);
-            $entityManager->flush();
-
-            return $this->redirectToRoute('app_admin');
-        }
-        //si le formulaire n'est pas rempli, on le présente à l'admin
-        return $this->render('index/dataForm.html.twig', [
-            'formName' => 'Modification de la fiche établissement',
-            'dataForm' => $activityForm->createView(),
-        ]);
     }
 
     /**
     * @Route("/activity/delete/{activityId}", name="delete_activity")
     */
-    public function deleteActivity(int $activityId, ManagerRegistry $managerRegistry, Request $request):Response
+    public function deleteActivity(int $activityId, ManagerRegistry $managerRegistry, EntityManagerInterface $em)
     {
-        //cette méthode nous permet de supprimer une fiche d'établissement de la vue et de la bdd 
+        //cette méthode nous permet de supprimer une activité de la vue et de la bdd 
         $entityManager = $managerRegistry->getManager();
         $activityRepository = $entityManager->getRepository(Activity::class);
-        //ns recherchons le bulletin qui nous interesse
+        //ns recherchons l'activité qui nous interesse
         $activity = $activityRepository->find($activityId);
-        //si l'hebergement n'est pas trouvé, retour à l'index admin
-        if(!$activity){
-            return $this->redirectToRoute("app_admin");
+        try {
+            $em->remove($activity);
+            $em->flush();
+            return $this->json($activity, 201, [], ['groups' => 'activity:read']);
         }
-        //si le bulletin possède une valeur, ns sommes en possession de l'entity à supp. ns passons dc une requête à l'entity manager
-        $entityManager->remove($activity);
-        $entityManager->flush(); // on applique la requête
-        //on revient à l'index
-        return $this->redirectToRoute("app_admin");
-    } 
+        catch (NotEncodableValueException $e) {
+            return $this->json([
+        'status' => 400,
+        'message' => $e->getMessage()], 400);
+        }
+    }
 }
