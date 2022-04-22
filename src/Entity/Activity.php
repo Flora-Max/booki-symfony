@@ -23,24 +23,25 @@ class Activity
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups("activity:read")
+     * @Groups("activity:read", "activity:wrtite")
      */
     private $name;
 
     /**
      * @ORM\Column(type="text")
+     * @Groups("activity:read", "activity:wrtite")
      */
     private $description;
 
     /**
      * @ORM\Column(type="integer")
-     * @Groups("activity:read")
+     * @Groups("activity:read", "activity:wrtite")
      */
     private $postcode;
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups("activity:read")
+     * @Groups("activity:read", "activity:wrtite")
      */
     private $city;
 

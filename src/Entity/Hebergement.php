@@ -24,14 +24,14 @@ class Hebergement
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups("hebergement:read")
+     * @Groups("hebergement:read", "hebergement:write")
      * @Groups("reservation:read")
      */
     private $name;
 
     /**
      * @ORM\Column(type="text")
-     * @Groups("hebergement:read")
+     * @Groups("hebergement:read", "hebergement:write")
      * @Groups("reservation:read")
      */
     private $description;
@@ -39,7 +39,7 @@ class Hebergement
 
     /**
      * @ORM\Column(type="integer")
-     * @Groups("hebergement:read")
+     * @Groups({"hebergement:read", "hebergement:write"})
      */
     private $price;
 
@@ -47,6 +47,7 @@ class Hebergement
 
     /**
      * @ORM\Column(type="integer")
+     * @Groups({"hebergement:read", "hebergement:write"})
      */
     private $postcode;
 
@@ -59,12 +60,12 @@ class Hebergement
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups("hebergement:read")
+     * @Groups({"hebergement:read", "hebergement:write"})
      */
     private $city;
 
     /**
-     * @ORM\Column(type="boolean", nullable=true)
+     * @ORM\Column(type="boolean", nullable=true, options={"default" : false})
      * @Groups("hebergement:read")
      */
     private $trend;
