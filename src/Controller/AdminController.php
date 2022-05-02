@@ -78,18 +78,14 @@ class AdminController extends AbstractController
     */
     public function updateHebergement(ManagerRegistry $managerRegistry, Request $request, int $hebergementId, ValidatorInterface $validator, SerializerInterface $serializer, EntityManagerInterface $em):Response
     {
-
         //cette méthode nous permet de mettre à jour un hébergement de notre bdd
         //Je récupère le corps de la requête
         $jsonRecu = $request->getContent();
         //Je récupère l'hébergement en fonction de son id
         $hebergementRepository = $em->getRepository(Hebergement::class);
         $hebergementToUpdate = $hebergementRepository->find($hebergementId);
-    
-        //$form = $this->createForm(HebergementType::class, $hebergementToUpdate);
-        //je sédérialise
-        $hebergementUpdated = $serializer->deserialize($jsonRecu, Hebergement::class, 'json', [AbstractNormalizer::OBJECT_TO_POPULATE => $hebergementToUpdate]);
-            
+        //je désérialise
+        $hebergementUpdated = $serializer->deserialize($jsonRecu, Hebergement::class, 'json', [AbstractNormalizer::OBJECT_TO_POPULATE => $hebergementToUpdate]);   
         try{
             $em->persist($hebergementUpdated);
             $em->flush();

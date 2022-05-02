@@ -43,15 +43,12 @@ class Hebergement
      */
     private $price;
 
-
-
     /**
      * @ORM\Column(type="integer")
      * @Groups({"hebergement:read", "hebergement:write"})
      */
     private $postcode;
 
-   
     /**
      * @ORM\OneToMany(targetEntity="App\Entity\Reservation", mappedBy="hebergement")
      * @ORM\JoinColumn(nullable=true)
@@ -98,8 +95,6 @@ class Hebergement
     {
         $this->reservations = new ArrayCollection();
     }
-
-   
 
     public function getId(): ?int
     {

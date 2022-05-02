@@ -18,7 +18,6 @@ class Reservation
      * @ORM\Id
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
-     * @Assert\NotBlank
      * @Groups("reservation:read")
      */
     private $id;
@@ -27,7 +26,7 @@ class Reservation
      * @ORM\Column(type="integer")
      * @Assert\NotBlank
      * @Assert\Positive
-     * @Groups("reservation:read")
+     * @Groups("reservation:read", "reservation:write")
      */
     private $quantityNight;
 
@@ -35,29 +34,28 @@ class Reservation
      * @ORM\Column(type="integer")
      * @Assert\NotBlank
      * @Assert\Positive
-     * @Groups("reservation:read")
+     * @Groups("reservation:read", "reservation:write")
      */
     private $quantityPeople;
 
     /**
      * @ORM\Column(type="datetime")
      * @Assert\NotBlank
-     * @Groups("reservation:read")
+     * @Groups("reservation:read", "reservation:write")
      */
     private $creationDate;
 
     /**
      * @ORM\Column(type="date")
      * @Assert\NotBlank
-     * @Groups("reservation:read")
+     * @Groups("reservation:read", "reservation:write")
      */
     private $firstNightDate;
 
-  
-     /**
+    /**
      * @ORM\ManyToOne(targetEntity="App\Entity\Hebergement", inversedBy="reservations")
      * @ORM\JoinColumn(name="hebergement_id", referencedColumnName="id",nullable=true)
-     * @Groups("reservation:read")
+     * @Groups("reservation:read", "reservation:write")
      */
     private $hebergement;
 
@@ -71,7 +69,7 @@ class Reservation
     {
         $this->creationDate = new \DateTime("now"); // on génère un objet DateTime configuré à l'instant de la génération de notre instance d'entity
     }
-   
+
 
     public function getId(): ?int
     {

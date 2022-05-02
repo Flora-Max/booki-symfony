@@ -40,16 +40,16 @@ class IndexController extends AbstractController
         $hebergementRepository = $entityManager->getRepository(Hebergement::class);
         $hebergements = $hebergementRepository->findAll();
         //je retourne une response au format json 
-        $response = $this->json($hebergements, 200, [], ['groups' => 'hebergement:read', 'city:read']);
+        $response = $this->json($hebergements, 200, [], ['groups' => 'hebergement:read']);
         return $response; 
     }
 
     /**
      * @Route("/activity", name="app_indexActivity", methods= {"GET"})
      */
-    public function indexActivity(ManagerRegistry $managerRegistry): Response
+    public function indexActivity(ManagerRegistry $managerRegistry): JsonResponse
     {
-        //cette méthode retourne la partie activités sur la page d'acceuil
+        //cette méthode retourne notre page d'acceuil / partie activité
         $entityManager = $managerRegistry->getManager();
         $activityRepository = $entityManager->getRepository(Activity::class);
         $activities = $activityRepository->findAll();
@@ -57,24 +57,6 @@ class IndexController extends AbstractController
         $response = $this->json($activities, 200, [], ['groups' => 'activity:read']);
         return $response; 
     }
-
-    /**
-     * @Route("/symfony", name="app_indexSymfony", methods= {"GET"})
-     */
-    /*public function indexSymfony(ManagerRegistry $managerRegistry): Response
-    {
-        //cette méthode retourne notre page d'acceuil 
-        $entityManager = $managerRegistry->getManager();
-        $hebergementRepository = $entityManager->getRepository(Hebergement::class);
-        $hebergements = $hebergementRepository->findAll();
-        $activityRepository = $entityManager->getRepository(Activity::class);
-        $activities = $activityRepository->findAll();
-        return $this->render('index/index.html.twig', [
-            'activities' => $activities,
-            'hebergements' => $hebergements
-        ]);
-        
-    }*/
 
     /**
      * @Route("/display/{hebergementId}", name="hebergement_display")
@@ -163,46 +145,5 @@ class IndexController extends AbstractController
             'activities' => $activities
         ]);
 
-    }
-    
-
-    /**
-     * @Route("/reservationForm/{hebergementId}", name="reservation_form")
-     */
-    public function reservationForm(EntityManagerInterface $em, Request $request, SerializerInterface $serializer, ValidatorInterface $validator, int $hebergementId)
-    {
-    //cette méthode nous permet de créer une réservation sur un hébergement
-    /*header('Access-Control-Allow-Origin: *');*/
-    //je récupère le corps de la requête
-    $jsonRecu = $request->getContent();
-
-    try {
-    //je désérialise, j'emet la réservation en fonction de l'hébergement
-    /**
-    * @var Reservation
-    */
-    $reservation = $serializer->deserialize($jsonRecu, Reservation::class, 'json');
-    $reservation->setHebergement($em->getReference(Hebergement::class, $hebergementId));
-
-    //verif du validator
-    $errors = $validator->validate($reservation);
-
-    //si compte d'erreurs sup à 0 : 
-    if(count($errors) >0){
-        return $this->json($errors, 400);
-    }
-
-    //si pas d'erreurs, je persiste
-    $em->persist($reservation);
-    $em->flush();
-
-    //je renvoie une response au format json
-    return $this->json($reservation, 201, [], ['groups' => 'reservation:read']);
-        } catch (NotEncodableValueException $e) {
-        return $this->json([
-            'status' => 400,
-            'message' => $e->getMessage()
-        ], 400);
-    }
     }
 }
