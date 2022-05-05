@@ -33,11 +33,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private $username;
 
     /**
-     * @ORM\Column(type="json")
-     */
-    private $roles= [];
-
-    /**
      * @var string The hashed password
      * @ORM\Column(type="string")
      * @Assert\NotBlank
@@ -59,7 +54,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private $email;
 
     /**
-     * @ORM\Column(type="boolean", nullable=true, options={"default" : false})
+     * @ORM\Column(type="boolean", nullable=false, options={"default" : false})
      */
     private $isAdmin;
 
@@ -104,18 +99,11 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      */
     public function getRoles(): array
     {
-        $roles = $this->roles;
-        // guarantee every user at least has ROLE_USER
-        $roles[] = 'ROLE_USER';
+        if ($this->isAdmin) {
+            return [ 'ROLE_ADMIN' ];
+        }
 
-        return array_unique($roles);
-    }
-
-    public function setRoles(array $roles): self
-    {
-        $this->roles = $roles;
-
-        return $this;
+        return [ 'ROLE_USER' ];
     }
 
     /**
