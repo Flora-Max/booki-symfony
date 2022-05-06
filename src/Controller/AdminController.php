@@ -30,24 +30,33 @@ use Symfony\Component\Serializer\Serializer;
 class AdminController extends AbstractController
 {
     /**
-     * @Route("/display", name="app_admin")
+     * @Route("/displayHebergement", name="app_adminHebergement")
      */
-    /*public function index(ManagerRegistry $managerRegistry): Response
+    public function indexHebergement(ManagerRegistry $managerRegistry): Response
     {
-        //cette méthode nous renvoie vers une page nous présentant la liste de tous les hébergements et activtées enregistrés dans notre BDD à des fins de consultations, modifications ou suppression
-        //On récupère l'entity et les repository pertinent
+     //cette méthode retourne notre page d'acceuil / partie hebergement
+        //return $this->render('index/index.html.twig');
         $entityManager = $managerRegistry->getManager();
-        //nous récupérons la liste de nos hébergements
         $hebergementRepository = $entityManager->getRepository(Hebergement::class);
         $hebergements = $hebergementRepository->findAll();
-        //nous récupérons la liste de nos activités
+        //je retourne une response au format json 
+        $response = $this->json($hebergements, 200, [], ['groups' => 'hebergement:read']);
+        return $response; 
+    }
+
+    /**
+     * @Route("/displayActivity", name="app_adminActivity")
+     */
+    public function indexActivity(ManagerRegistry $managerRegistry): Response
+    {
+        //cette méthode retourne notre page d'acceuil / partie activité
+        $entityManager = $managerRegistry->getManager();
         $activityRepository = $entityManager->getRepository(Activity::class);
         $activities = $activityRepository->findAll();
-        return $this->render('admin/backoffice_admin.html.twig', [
-            'hebergements' => $hebergements,
-            'activities' => $activities,
-        ]);
-    }*/
+        //je retourne une response au format json
+        $response = $this->json($activities, 200, [], ['groups' => 'activity:read']);
+        return $response;
+    }
 
     /**
      * @Route("/create/hebergement", name="create_hebergement")
@@ -76,7 +85,7 @@ class AdminController extends AbstractController
     * @Route("/update/hebergement/{hebergementId}", name="update_hebergement")
     * @ParamConverter("hebergement")
     */
-    public function updateHebergement(ManagerRegistry $managerRegistry, Request $request, int $hebergementId, ValidatorInterface $validator, SerializerInterface $serializer, EntityManagerInterface $em):Response
+    public function updateHebergement(Request $request, int $hebergementId, ValidatorInterface $validator, SerializerInterface $serializer, EntityManagerInterface $em):Response
     {
         //cette méthode nous permet de mettre à jour un hébergement de notre bdd
         //Je récupère le corps de la requête
